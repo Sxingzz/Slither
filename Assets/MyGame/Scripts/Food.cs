@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using Unity.BossRoom.Infrastructure;
 
 public class Food : NetworkBehaviour
 {
+    public GameObject prefab;
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!collision.CompareTag("Player")) return;
@@ -20,6 +23,7 @@ public class Food : NetworkBehaviour
             tail.networkedOwner.GetComponent<PlayerLength>().AddLength();
         }
 
+        NetworkObjectPool.Singleton.ReturnNetworkObject(NetworkObject, prefab);
         NetworkObject.Despawn(); // remove khỏi mạng
     }
 }

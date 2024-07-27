@@ -8,7 +8,7 @@ public class PlayerLength : NetworkBehaviour
 
     // ushort đại diện cho một số nguyên không âm có phạm vi giá trị từ 0 đến 65,535
     public NetworkVariable<ushort> length = new(1, NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Owner);
+        NetworkVariableWritePermission.Server);
 
     private List<GameObject> _tails;
     private Transform _lastTail;
