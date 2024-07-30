@@ -37,7 +37,7 @@ public class FoodSpawner : MonoBehaviour
 
     private Vector3 GetRandomPositionOnMap()
     {
-        return new Vector3(Random.Range(-9f, 9f), Random.Range(-5f, 5f), 0f);
+        return new Vector3(Random.Range(-7f, 7f), Random.Range(-5f, 5f), 0f);
     }
 
     private IEnumerator SpawnOverTime()

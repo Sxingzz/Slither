@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -10,6 +11,8 @@ public class PlayerLength : NetworkBehaviour
     public NetworkVariable<ushort> length = new(1, NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
+    [CanBeNull] public static event System.Action<ushort> ChangedLengthEvent;
+
     private List<GameObject> _tails;
     private Transform _lastTail;
     private Collider2D _collider2D;
@@ -20,7 +23,23 @@ public class PlayerLength : NetworkBehaviour
         _tails = new List<GameObject>(); // check null
         _lastTail = transform;
         _collider2D = GetComponent<Collider2D>(); // get collider
-        if (!IsServer) length.OnValueChanged += LengthChanged; // client updates tails
+        if (!IsServer) length.OnValueChanged += LengthChangedEvent; // client updates tails
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        DestroyTails();
+    }
+
+    private void DestroyTails()
+    {
+        while (_tails.Count != 0)
+        {
+            GameObject tail = _tails[0];
+            _tails.RemoveAt(0);
+            Destroy(tail);
+        }
     }
 
     // this will be called by the sever
@@ -28,15 +47,25 @@ public class PlayerLength : NetworkBehaviour
     public void AddLength()
     {
         length.Value += 1;
-        InstantiateTail();
+
+        LengthChanged();
     }
 
-    private void LengthChanged(ushort previousValue, ushort newValue)
+    private void LengthChanged()
     {
-        Debug.Log("LengthChanged callback");
         InstantiateTail();
 
+        if (!IsOwner) return; // ngăn client gọi sự kiện ChangedLengthEvent để tối ưu hóa tránh gọi nhiều lần, vì khi host chạy thì sự kiện ChangedLengthEvent đã dc gọi, và client vẫn cập nhật dc text vì tính chất đồng bộ hóa sever và client của networkvariable
+        ChangedLengthEvent?.Invoke(length.Value);
 
+        ClientMusicPlayer.Instance.PlayNomAudioClip();
+    }
+
+
+    private void LengthChangedEvent(ushort previousValue, ushort newValue)
+    {
+        Debug.Log("LengthChanged callback");
+        LengthChanged();
     }
 
     private void InstantiateTail()
