@@ -84,7 +84,7 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)] // false đánh dấu phương thức dc gọi từ client nhưng dc thực thi trên sever
+    [ServerRpc] // [ServerRpc(RequireOwnership = false)] đánh dấu phương thức dc gọi từ client nhưng dc thực thi trên sever
     private void DeterminedCollisionWinnerServerRpc(PlayerData player1, PlayerData player2 ) // thêm SeverRpc vào cuối để dễ nhận biết
     {
         if (player1.Length > player2.Length)
@@ -97,7 +97,7 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)] // mặc định dc gọi từ client (Host) và dc thực thi trên server
+    [ServerRpc] // mặc định dc gọi từ client (Host) và dc thực thi trên server
     private void WinInformationServerRpc(ulong winner, ulong loser)
     {
         _targetClientArray[0] = winner; // mảng chứa các id của client thắng
